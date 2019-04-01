@@ -1,1 +1,1 @@
-Code I've done while reading the book. All examples and implementations.
+BeatBox program from the book.
