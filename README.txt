@@ -1,1 +1,1 @@
-BeatBox program from the book.
+BeatBox program and Quiz Card Game from the book.

@@ -1,3 +1,5 @@
+package BeatBox;
+
 import javax.sound.midi.*;
 import javax.swing.*;
 import java.awt.*;
@@ -25,7 +27,7 @@ public class BeatBox {
     }
 
     public void buildGUI(){
-        jFrame = new JFrame("Cyber BeatBox");
+        jFrame = new JFrame("Cyber BeatBox.BeatBox");
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         BorderLayout layout = new BorderLayout();
         JPanel background = new JPanel(layout);
