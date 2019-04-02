@@ -58,9 +58,17 @@ public class BeatBox {
         save.addActionListener(new MySaveActionListener());
         buttonBox.add(save);
 
+        JButton saveAs = new JButton("Save as");
+        saveAs.addActionListener(new MySaveAsActionListener());
+        buttonBox.add(saveAs);
+
         JButton restore = new JButton("Restore");
         restore.addActionListener(new MyRestoreActionListener());
         buttonBox.add(restore);
+
+        JButton openFromFile = new JButton("Open from File");
+        openFromFile.addActionListener(new MyOpenFromFileActionListener());
+        buttonBox.add(openFromFile);
 
         Box nameBox = new Box(BoxLayout.Y_AXIS);
         for(int i = 0; i < 16; i++){
@@ -174,47 +182,71 @@ public class BeatBox {
     public class MySaveActionListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
-            boolean checkBoxState [] = new boolean[256];
+            saveFile(new File("./src/BeatBox/Checkbox.ser"));
+        }
+    }
 
-            for(int i = 0; i < checkBoxState.length; i++){
-                JCheckBox checkBox = (JCheckBox) checkBoxList.get(i);
-                if(checkBox.isSelected()){
-                    checkBoxState[i] = true;
-                }
-            }
-            try{
-                FileOutputStream fileOutputStream = new FileOutputStream(new File("./src/BeatBox/Checkbox.ser"));
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-                objectOutputStream.writeObject(checkBoxState);
-            }catch (Exception ex){
-                ex.printStackTrace();
-            }
+    public class MySaveAsActionListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser jFileChooser = new JFileChooser();
+            jFileChooser.showSaveDialog(jFrame);
+            saveFile(jFileChooser.getSelectedFile());
         }
     }
 
     public class MyRestoreActionListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
-
-            boolean checkBoxState [] = null;
-
-            try{
-                FileInputStream fileInputStream = new FileInputStream(new File("./src/BeatBox/Checkbox.ser"));
-                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-                checkBoxState = (boolean[]) objectInputStream.readObject();
-            }catch (Exception ex){
-                ex.printStackTrace();
-            }
-
-            for(int i = 0; i < checkBoxState.length; i++){
-                if(checkBoxState[i]){
-                    checkBoxList.get(i).setSelected(true);
-                }
-            }
-            sequencer.stop();
+            openFile(new File("./src/BeatBox/Checkbox.ser"));
         }
     }
 
+    public class MyOpenFromFileActionListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser jFileChooser = new JFileChooser();
+            jFileChooser.showOpenDialog(jFrame);
+            openFile(jFileChooser.getSelectedFile());
+        }
+    }
+
+    public void openFile(File file){
+        boolean checkBoxState [] = null;
+
+        try{
+            FileInputStream fileInputStream = new FileInputStream(file);
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            checkBoxState = (boolean[]) objectInputStream.readObject();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+
+        for(int i = 0; i < checkBoxState.length; i++){
+            if(checkBoxState[i]){
+                checkBoxList.get(i).setSelected(true);
+            }
+        }
+        sequencer.stop();
+    }
+
+    public void saveFile(File file){
+        boolean checkBoxState [] = new boolean[256];
+
+        for(int i = 0; i < checkBoxState.length; i++){
+            JCheckBox checkBox = (JCheckBox) checkBoxList.get(i);
+            if(checkBox.isSelected()){
+                checkBoxState[i] = true;
+            }
+        }
+        try{
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(checkBoxState);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+    }
 
     public void makeTracks(int [] list){
         for(int i = 0; i < 16; i++){
