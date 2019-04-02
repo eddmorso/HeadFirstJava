@@ -5,16 +5,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 import java.util.ArrayList;
 
 public class BeatBox {
 
-    JPanel mainPanel;
-    ArrayList<JCheckBox> checkBoxList;
-    Sequencer sequencer;
-    Sequence sequence;
-    Track track;
-    JFrame jFrame;
+    private JPanel mainPanel;
+    private ArrayList<JCheckBox> checkBoxList;
+    private Sequencer sequencer;
+    private Sequence sequence;
+    private Track track;
+    private JFrame jFrame;
 
     String [] instrumentNames = {"Bass Drum", "Closed Hi-Hat", "Open Hi-Hat", "Acoustic Snare", "Crash Cymbal", "Hand Clap",
             "Hi Tom", "Hi Bongo", "Maracas", "Whistle", "Low Conga", "Cow bell", "Vibra slap",
@@ -36,22 +37,30 @@ public class BeatBox {
         checkBoxList = new ArrayList<JCheckBox>();
         Box buttonBox = new Box(BoxLayout.Y_AXIS);
 
-        JButton start = new JButton("start");
+        JButton start = new JButton("Start");
         start.addActionListener(new MyStartListener());
         buttonBox.add(start);
 
-        JButton stop = new JButton("stop");
+        JButton stop = new JButton("Stop");
         stop.addActionListener(new MyStopListener());
         buttonBox.add(stop);
 
 
-        JButton upTempo = new JButton("upTempo");
+        JButton upTempo = new JButton("Up Tempo");
         upTempo.addActionListener(new MyUpTempoListener());
         buttonBox.add(upTempo);
 
-        JButton downTempo = new JButton("downTempo");
+        JButton downTempo = new JButton("Down Tempo");
         downTempo.addActionListener(new MyDownTempoListener());
         buttonBox.add(downTempo);
+
+        JButton save = new JButton("Save");
+        save.addActionListener(new MySaveActionListener());
+        buttonBox.add(save);
+
+        JButton restore = new JButton("Restore");
+        restore.addActionListener(new MyRestoreActionListener());
+        buttonBox.add(restore);
 
         Box nameBox = new Box(BoxLayout.Y_AXIS);
         for(int i = 0; i < 16; i++){
@@ -159,6 +168,50 @@ public class BeatBox {
         public void actionPerformed(ActionEvent e) {
             float tempoFactor = sequencer.getTempoFactor();
             sequencer.setTempoFactor((float)(tempoFactor*.97));
+        }
+    }
+
+    public class MySaveActionListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            boolean checkBoxState [] = new boolean[256];
+
+            for(int i = 0; i < checkBoxState.length; i++){
+                JCheckBox checkBox = (JCheckBox) checkBoxList.get(i);
+                if(checkBox.isSelected()){
+                    checkBoxState[i] = true;
+                }
+            }
+            try{
+                FileOutputStream fileOutputStream = new FileOutputStream(new File("./src/BeatBox/Checkbox.ser"));
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+                objectOutputStream.writeObject(checkBoxState);
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    public class MyRestoreActionListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            boolean checkBoxState [] = null;
+
+            try{
+                FileInputStream fileInputStream = new FileInputStream(new File("./src/BeatBox/Checkbox.ser"));
+                ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+                checkBoxState = (boolean[]) objectInputStream.readObject();
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+
+            for(int i = 0; i < checkBoxState.length; i++){
+                if(checkBoxState[i]){
+                    checkBoxList.get(i).setSelected(true);
+                }
+            }
+            sequencer.stop();
         }
     }
 
